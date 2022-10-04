@@ -6,6 +6,7 @@ import (
 )
 
 var ErrCapacityReached = errors.New("resource usage is at capacity")
+var ErrInvalidLimitSetting = errors.New("limit configuration is invalid")
 
 type RequestRate interface {
 	SetLimit(ctx context.Context, resourceName, accountID string, limit int64, windowSec float64) error

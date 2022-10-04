@@ -151,14 +151,22 @@ func (rl *RateLimiter) GetToken(ctx context.Context, resourceName, accountID str
 		}
 	}
 	timeSinceRefill := startTime - lastRefill
-
 	refillTokens := rl.computeTokenRefillAmount(currentTokens, timeSinceRefill, limit, tokenMS)
 	if rl.debug {
-		_, _ = fmt.Fprintf(rl.writer, "refill token value: %v", refillTokens)
+		_, _ = fmt.Fprintf(rl.writer,
+			"startTime: %d, lastRefill: %d, refill: %v",
+			startTime, lastRefill, refillTokens)
 	}
+
 	err = rl.refillBucketTokens(ctx, resourceName, accountID, refillTokens, startTime)
-	if rl.debug {
-		_, _ = fmt.Fprintf(rl.writer, "error refilling tokens: %v", err)
+	if err != nil {
+		var ccf *types.ConditionalCheckFailedException
+		if !errors.As(err, &ccf) {
+			if rl.debug {
+				_, _ = fmt.Fprintf(rl.writer, "error refilling tokens: %v", err)
+			}
+			return false, err
+		}
 	}
 
 	return true, nil
@@ -246,8 +254,15 @@ func (rl *RateLimiter) computeTokenRefillAmount(currentTokens, timeSinceRefill, 
 	if currentTokens > t {
 		t = currentTokens
 	}
+	if rl.debug {
+		_, _ = fmt.Fprintf(rl.writer, "t: %d, currentTokens: %d, limit: %d", t, currentTokens, limit)
+	}
 
 	t = t + int64(tokenMS*float64(timeSinceRefill))
+	if rl.debug {
+		_, _ = fmt.Fprintf(rl.writer, "tokenMS: %.5f, timeSince: %d, new_t: %d", tokenMS, timeSinceRefill, t)
+	}
+
 	if t > limit-1 {
 		return limit - 1
 	}
