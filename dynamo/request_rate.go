@@ -19,9 +19,16 @@ import (
 )
 
 const (
-	tokenCol      = "tokens"
-	lastRefillCol = "last_refill"
-	lastTokenCol  = "last_token"
+	defaultLimitRate    = 5
+	defaultWindowSecond = 1.0
+	tokenKey            = "resource_name"
+	tokenRange          = "account_id"
+	limitKey            = "resource_name"
+	limitRange          = "account_id"
+	limitSecondary      = "service_name"
+	tokenCol            = "tokens"
+	lastRefillCol       = "last_refill"
+	lastTokenCol        = "last_token"
 )
 
 type RequestRateLimit struct {

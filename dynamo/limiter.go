@@ -9,16 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-const (
-	defaultLimitRate    = 5
-	defaultWindowSecond = 1.0
-	tokenKey            = "resourceName"
-	tokenRange          = "accountId"
-	limitKey            = "resourceName"
-	limitRange          = "accountId"
-	limitSecondary      = "serviceName"
-)
-
 type RateLimiter struct {
 	config      aws.Config
 	client      *dynamodb.Client
